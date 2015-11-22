@@ -35,3 +35,8 @@ lint: build
 base:
 	cp -r tacos/files/. .
 	cat tacos/files/app.rb | sed "s/NAME/$(NAME)/" > app.rb
+
+.PHONY: clean
+clean:
+	-docker rm $$(docker ps -aq)
+	-docker rmi $$(docker images -q -f "dangling=true")
