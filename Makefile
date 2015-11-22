@@ -14,6 +14,7 @@ Gemfile.lock: Gemfile
 	docker create --name $(NAME) $(NAME) cmd
 	docker cp $(NAME):$(WORKDIR)/Gemfile.lock .
 	docker rm $(NAME)
+	touch Gemfile.lock
 
 .PHONY: build
 build: Gemfile.lock
