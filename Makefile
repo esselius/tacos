@@ -1,7 +1,5 @@
 .DEFAULT_GOAL:=test
 
-TACOS_PATH=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-
 WORKDIR:=/usr/src/app
 
 TEST_FILES:=$(wildcard test/*_test.rb)
@@ -32,3 +30,8 @@ test-local:
 .PHONY: lint
 lint: build
 	$(SAFE_DOCKER_RUN) rubocop
+
+.PHONY: base
+base:
+	cp -r tacos/files/. .
+	cat tacos/files/app.rb | sed "s/NAME/$(NAME)/" > app.rb
