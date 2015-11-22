@@ -1,5 +1,7 @@
 .DEFAULT_GOAL:=test
 
+NAME:=$(shell basename $$PWD)
+
 TACOS_PATH=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 WORKDIR:=/usr/src/app
