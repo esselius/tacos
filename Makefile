@@ -8,6 +8,7 @@ TEST_COMMAND:=ruby -I./ $(foreach file,$(TEST_FILES),-r$(file)) -e exit
 NAME:=$(shell basename $$PWD)
 DOCKER_BUILD:=docker build -t $(NAME) .
 SAFE_DOCKER_RUN:=docker run --rm -it --net=none $(NAME)
+AWS_DOCKER_RUN:=docker run --rm -it -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY $(NAME)
 
 Gemfile.lock: Gemfile
 	$(DOCKER_BUILD)
