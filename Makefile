@@ -1,7 +1,5 @@
 .DEFAULT_GOAL:=test
 
-NAME:=$(shell basename $$PWD)
-
 TACOS_PATH=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 WORKDIR:=/usr/src/app
@@ -9,17 +7,19 @@ WORKDIR:=/usr/src/app
 TEST_FILES:=$(wildcard test/*_test.rb)
 TEST_COMMAND:=ruby -I./ $(foreach file,$(TEST_FILES),-r$(file)) -e exit
 
+NAME:=$(shell basename $$PWD)
+DOCKER_BUILD:=docker build -t $(NAME) .
 SAFE_DOCKER_RUN:=docker run --rm -it --net=none $(NAME)
 
 Gemfile.lock: Gemfile
-	docker build -t $(NAME) .
+	$(DOCKER_BUILD)
 	docker create --name $(NAME) $(NAME) cmd
 	docker cp $(NAME):$(WORKDIR)/Gemfile.lock .
 	docker rm $(NAME)
 
 .PHONY: build
 build: Gemfile.lock
-	docker build -t $(NAME) .
+	$(DOCKER_BUILD)
 
 .PHONY: test
 test: build
@@ -31,4 +31,4 @@ test-local:
 
 .PHONY: lint
 lint: build
-	$(BUILDER) $(DOCKER_RUN) rubocop
+	$(SAFE_DOCKER_RUN) rubocop
