@@ -2,24 +2,31 @@
 
 TACOS_PATH=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-DOCKER_IMAGE:=tacos
-CONTAINER_WORKDIR:=/usr/src/app
+WORKDIR:=/usr/src/app
 
 TEST_FILES:=$(wildcard test/*_test.rb)
 TEST_COMMAND:=ruby -I./ $(foreach file,$(TEST_FILES),-r$(file)) -e exit
 
-BUILDER:=$(TACOS_PATH)/Dockerfile.sh $(DOCKER_IMAGE)
-DOCKER_RUN:=docker run --rm -it --net=none -v $(PWD):$(CONTAINER_WORKDIR) $(DOCKER_IMAGE)
+SAFE_DOCKER_RUN:=docker run --rm -it --net=none $(NAME)
 
 Gemfile.lock: Gemfile
-	$(BUILDER)
-	$(TACOS_PATH)/Gemfile.lock.sh $(DOCKER_IMAGE) $(CONTAINER_WORKDIR)
+	docker build -t $(NAME) .
+	docker create --name $(NAME) $(NAME) cmd
+	docker cp $(NAME):$(WORKDIR)/Gemfile.lock .
+	docker rm $(NAME)
 
-test: Gemfile.lock
-	$(BUILDER) $(DOCKER_RUN) $(TEST_COMMAND)
+.PHONY: build
+build: Gemfile.lock
+	docker build -t $(NAME) .
 
+.PHONY: test
+test: build
+	$(SAFE_DOCKER_RUN) $(TEST_COMMAND)
+
+.PHONY: test-local
 test-local:
 	$(TEST_COMMAND)
 
-lint: Dockerfile
+.PHONY: lint
+lint: build
 	$(BUILDER) $(DOCKER_RUN) rubocop
