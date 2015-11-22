@@ -6,17 +6,18 @@ TEST_FILES:=$(wildcard test/*_test.rb)
 TEST_COMMAND:=ruby -I./ $(foreach file,$(TEST_FILES),-r$(file)) -e exit
 
 NAME:=$(shell basename $$PWD)
+DOCKER_BUILD:=docker build -t $(NAME) .
 SAFE_DOCKER_RUN:=docker run --rm -it --net=none $(NAME)
 
 Gemfile.lock: Gemfile
-	docker build -t $(NAME) .
+	$(DOCKER_BUILD)
 	docker create --name $(NAME) $(NAME) cmd
 	docker cp $(NAME):$(WORKDIR)/Gemfile.lock .
 	docker rm $(NAME)
 
 .PHONY: build
 build: Gemfile.lock
-	docker build -t $(NAME) -f Dockerfile.dev .
+	$(DOCKER_BUILD)
 
 .PHONY: test
 test: build
@@ -34,4 +35,3 @@ lint: build
 base:
 	cp -r tacos/files/. .
 	cat tacos/files/app.rb | sed "s/NAME/$(NAME)/" > app.rb
-	cat tacos/files/Dockerfile.dev | sed "s/NAME/$(NAME)/" > Dockerfile.dev
