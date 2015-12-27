@@ -42,3 +42,8 @@ base:
 clean:
 	-docker rm $$(docker ps -aq)
 	-docker rmi $$(docker images -q -f "dangling=true")
+
+.PHONY: up
+up:
+	docker-compose build
+	docker-compose up -d
