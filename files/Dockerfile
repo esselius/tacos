@@ -1,5 +1,7 @@
 FROM alpine:3.2
 
+ENV PATH $PATH:bin
+
 RUN apk -U add ruby ruby-bundler ruby-io-console && rm -rf /var/cache/apk/*
 
 WORKDIR /usr/src/app
