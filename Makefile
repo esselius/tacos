@@ -44,6 +44,5 @@ clean:
 	-docker rmi $$(docker images -q -f "dangling=true")
 
 .PHONY: up
-up:
-	docker-compose build
+up: build
 	docker-compose up -d
